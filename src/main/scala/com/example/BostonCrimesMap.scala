@@ -50,14 +50,14 @@ object BostonCrimesMap extends App{
 
   val crime_new: DataFrame = crime
     .join(offense_codes_broadcast.value, $"CODE" === $"OFFENSE_CODE")
-    .select("INCIDENT_NUMBER", "DISTRICT" , "MONTH", "Lat", "Long", "crime_type")
+    .select("INCIDENT_NUMBER", "DISTRICT", "YEAR", "MONTH", "Lat", "Long", "crime_type")
     .na.fill(0.0)
     .cache
 
   val window: WindowSpec = Window.partitionBy($"DISTRICT").orderBy($"count_crimes".desc)
 
   val crime_out_1: DataFrame = crime_new
-    .groupBy($"DISTRICT", $"MONTH")
+    .groupBy($"DISTRICT", $"YEAR", $"MONTH")
     .agg(count($"INCIDENT_NUMBER").alias("count_crimes"))
 
     .groupBy(($"DISTRICT").alias("district"))
